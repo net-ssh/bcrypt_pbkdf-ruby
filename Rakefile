@@ -50,4 +50,6 @@ end
 
 Rake::ExtensionTask.new("bcrypt_pbkdf_ext", GEMSPEC) do |ext|
   ext.ext_dir = 'ext/mri'
+  ext.cross_compile = true
+  ext.cross_platform = ['x86-mingw32', 'x64-mingw32']
 end
