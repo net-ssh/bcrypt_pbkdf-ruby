@@ -16,6 +16,11 @@ CLOBBER.include(
   "pkg"
 )
 
+task 'gem:windows' do
+  require 'rake_compiler_dock'
+  RakeCompilerDock.sh "bundle && rake cross native gem"
+end
+
 GEMSPEC = Gem::Specification.load("bcrypt_pbkdf.gemspec")
 
 task :default => [:compile, :spec]

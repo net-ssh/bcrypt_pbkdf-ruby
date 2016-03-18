@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rbnacl', '~> 3.3'
   s.add_development_dependency 'rbnacl-libsodium', '~> 1.0.8'
   s.add_development_dependency 'rdoc', '~> 3.12'
+  s.add_development_dependency 'rake-compiler-dock', '~> 0.4.3'
 
   s.has_rdoc = true
   s.rdoc_options += ['--title', 'bcrypt_pbkdf', '--line-numbers', '--inline-source', '--main', 'README.md']
