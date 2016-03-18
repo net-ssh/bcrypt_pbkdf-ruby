@@ -2,9 +2,9 @@ Gem::Specification.new do |s|
   s.name = 'bcrypt_pbkdf'
   s.version = '1.0.0.alpha1'
 
-  s.summary = "OpenBSD's bcrypt_pdkfd hashing algorithm."
+  s.summary = "OpenBSD's bcrypt_pdkfd (a variant of PBKDF2 with bcrypt-based PRF)"
   s.description = <<-EOF
-    This gem implements bcrypt_pdkfd().
+    This gem implements bcrypt_pdkfd (a variant of PBKDF2 with bcrypt-based PRF)
   EOF
 
   s.files = `git ls-files`.split("\n")

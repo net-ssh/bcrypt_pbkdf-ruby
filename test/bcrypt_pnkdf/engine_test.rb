@@ -14,7 +14,7 @@ def bcrypt_pbkdf(password, salt, keylen, rounds)
   amt = (keylen + stride - 1) / stride
 
   sha2pass = RbNaCl::Hash.sha512(password)
-  puts "[RB] sha2pass:#{sha2pass.inspect} #{sha2pass.size}"
+  #puts "[RB] sha2pass:#{sha2pass.inspect} #{sha2pass.size}"
 
   remlen = keylen
 
@@ -30,13 +30,13 @@ def bcrypt_pbkdf(password, salt, keylen, rounds)
     countsalt[saltlen + 1] = ((count >> 16) & 0xff).chr
     countsalt[saltlen + 2] = ((count >> 8) & 0xff).chr
     countsalt[saltlen + 3] = (count & 0xff).chr
-    puts "[RC] countsalt: #{countsalt.inspect} len:#{countsalt.size}"
+    #puts "[RC] countsalt: #{countsalt.inspect} len:#{countsalt.size}"
 
     sha2salt = RbNaCl::Hash.sha512(countsalt)
     tmpout = BCryptPbkdf::Engine::__bc_crypt_hash(sha2pass, sha2salt)
     out = tmpout.clone
 
-    puts "[RB] out: #{out.inspect} keylen:#{remlen} count:#{count}"
+    #puts "[RB] out: #{out.inspect} keylen:#{remlen} count:#{count}"
     (1...rounds).each do |i|
       sha2salt = RbNaCl::Hash.sha512(tmpout)
       tmpout = BCryptPbkdf::Engine::__bc_crypt_hash(sha2pass, sha2salt)
@@ -57,8 +57,22 @@ end
 
 
 class TestExt < MiniTest::Unit::TestCase
-  
+  def test_table
+    assert_equal table, table.map{ |p,s,l,r| [p,s,l,r,BCryptPbkdf::Engine::__bc_crypt_pbkdf(p,s,l,r).bytes] }
+  end
   def test_ruby_and_native_returns_the_same
-    assert_equal bcrypt_pbkdf('pass2','salt2',12,2), BCryptPbkdf::Engine::__bc_crypt_pbkdf('pass2','salt2',12,2)
+    table.each do |p,s,l,r|
+      assert_equal bcrypt_pbkdf(p,s,l,r), BCryptPbkdf::Engine::__bc_crypt_pbkdf(p,s,l,r)
+      assert_equal bcrypt_pbkdf(p,s,l,r), BCryptPbkdf::key(p,s,l,r)
+    end
+  end
+  
+
+  def table
+    [
+      ["pass2", "salt2", 12, 2, [214, 14, 48, 162, 131, 206, 121, 176, 50, 104, 231, 252]], 
+      ["\u0000\u0001foo", "\u0001\u0002fooo3", 14, 5, [46, 189, 32, 185, 94, 85, 232, 10, 84, 26, 44, 161, 49, 126]],
+      ["doozoasd", "fooo$AS!", 14, 22, [57, 62, 50, 107, 70, 155, 65, 5, 129, 211, 189, 169, 188, 65]]
+    ]
   end
 end
