@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
 
   s.extensions = 'ext/mri/extconf.rb'
 
-  s.authors = ["Miklós Fazekas"]
+  s.authors = ["Miklos Fazekas"]
   s.email = "mfazekas@szemafor.com"
   s.homepage = "https://github.com/mfazekas/bcrypt_pbkdf-ruby"
   s.license = "MIT"
