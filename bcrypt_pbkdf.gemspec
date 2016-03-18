@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.has_rdoc = true
   s.rdoc_options += ['--title', 'bcrypt_pbkdf', '--line-numbers', '--inline-source', '--main', 'README.md']
-  s.extra_rdoc_files += ['README.md', 'COPYING', 'CHANGELOG', *Dir['lib/**/*.rb']]
+  s.extra_rdoc_files += ['README.md', 'COPYING', 'CHANGELOG.md', *Dir['lib/**/*.rb']]
 
   s.extensions = 'ext/mri/extconf.rb'
 
