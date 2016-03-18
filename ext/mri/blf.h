@@ -83,6 +83,8 @@ void blf_cbc_decrypt(blf_ctx *, u_int8_t *, u_int8_t *, u_int32_t);
 /* Converts u_int8_t to u_int32_t */
 u_int32_t Blowfish_stream2word(const u_int8_t *, u_int16_t , u_int16_t *);
 
+#define DEF_WEAK(foo) 
+
 #endif /* !defined(HAVE_BCRYPT_PBKDF) && !defined(HAVE_BLH_H) */
 #endif /* _BLF_H */
 

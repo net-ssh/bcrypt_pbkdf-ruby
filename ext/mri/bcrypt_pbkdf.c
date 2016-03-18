@@ -15,29 +15,14 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdio.h>
-
-#include "includes.h"
-
-#ifndef HAVE_BCRYPT_PBKDF
-
 #include <sys/types.h>
-#include <sys/param.h>
 
-#ifdef HAVE_STDLIB_H
-# include <stdlib.h>
-#endif
+#include <stdint.h>
+#include <stdlib.h>
+#include "blf.h"
+#include "sha2.h"
 #include <string.h>
-
-#ifdef HAVE_BLF_H
-# include <blf.h>
-#endif
-
-#include "crypto_api.h"
-#ifdef SHA512_DIGEST_LENGTH
-# undef SHA512_DIGEST_LENGTH
-#endif
-#define SHA512_DIGEST_LENGTH crypto_hash_sha512_BYTES
+#include "util.h"
 
 #define	MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -69,10 +54,10 @@
 #define BCRYPT_HASHSIZE (BCRYPT_WORDS * 4)
 
 void
-bcrypt_hash(const u_int8_t *sha2pass, const u_int8_t *sha2salt, u_int8_t *out)
+bcrypt_hash(const uint8_t *sha2pass, const uint8_t *sha2salt, uint8_t *out)
 {
 	blf_ctx state;
-	u_int8_t ciphertext[BCRYPT_HASHSIZE] =
+	uint8_t ciphertext[BCRYPT_HASHSIZE] =
 	    "OxychromaticBlowfishSwatDynamite";
 	uint32_t cdata[BCRYPT_WORDS];
 	int i;
@@ -110,14 +95,15 @@ bcrypt_hash(const u_int8_t *sha2pass, const u_int8_t *sha2salt, u_int8_t *out)
 }
 
 int
-bcrypt_pbkdf(const char *pass, size_t passlen, const u_int8_t *salt, size_t saltlen,
-    u_int8_t *key, size_t keylen, unsigned int rounds)
+bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt, size_t saltlen,
+    uint8_t *key, size_t keylen, unsigned int rounds)
 {
-	u_int8_t sha2pass[SHA512_DIGEST_LENGTH];
-	u_int8_t sha2salt[SHA512_DIGEST_LENGTH];
-	u_int8_t out[BCRYPT_HASHSIZE];
-	u_int8_t tmpout[BCRYPT_HASHSIZE];
-	u_int8_t *countsalt;
+	SHA2_CTX ctx;
+	uint8_t sha2pass[SHA512_DIGEST_LENGTH];
+	uint8_t sha2salt[SHA512_DIGEST_LENGTH];
+	uint8_t out[BCRYPT_HASHSIZE];
+	uint8_t tmpout[BCRYPT_HASHSIZE];
+	uint8_t countsalt[4];
 	size_t i, j, amt, stride;
 	uint32_t count;
 	size_t origkeylen = keylen;
@@ -126,60 +112,37 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const u_int8_t *salt, size_t salt
 	if (rounds < 1)
 		return -1;
 	if (passlen == 0 || saltlen == 0 || keylen == 0 ||
-	    keylen > sizeof(out) * sizeof(out) || saltlen > 1<<20)
-		return -1;
-	if ((countsalt = calloc(1, saltlen + 4)) == NULL)
+	    keylen > sizeof(out) * sizeof(out))
 		return -1;
 	stride = (keylen + sizeof(out) - 1) / sizeof(out);
 	amt = (keylen + stride - 1) / stride;
 
-	memcpy(countsalt, salt, saltlen);
-
 	/* collapse password */
-	crypto_hash_sha512(sha2pass, (const unsigned char*)pass, passlen);
+	SHA512Init(&ctx);
+	SHA512Update(&ctx, pass, passlen);
+	SHA512Final(sha2pass, &ctx);
 
-  {
-    int oi;
-    printf("[C++] sha2pass:");
-    for (oi = 0; oi < sizeof(sha2pass); ++oi) {
-      printf("\\x%x", sha2pass[oi]);
-    }
-    printf(" size:%lu\n",sizeof(sha2pass));
-  }
 
 	/* generate key, sizeof(out) at a time */
 	for (count = 1; keylen > 0; count++) {
-		countsalt[saltlen + 0] = (count >> 24) & 0xff;
-		countsalt[saltlen + 1] = (count >> 16) & 0xff;
-		countsalt[saltlen + 2] = (count >> 8) & 0xff;
-		countsalt[saltlen + 3] = count & 0xff;
-    {
-      int oi;
-      printf("[C++] countsalt:");
-      for (oi = 0; oi < saltlen+4; ++oi) {
-        printf("\\x%x", countsalt[oi]);
-      }
-      printf(" size:%lu\n",saltlen+4);
-    }
+		countsalt[0] = (count >> 24) & 0xff;
+		countsalt[1] = (count >> 16) & 0xff;
+		countsalt[2] = (count >> 8) & 0xff;
+		countsalt[3] = count & 0xff;
 
 		/* first round, salt is salt */
-		crypto_hash_sha512(sha2salt, countsalt, saltlen + 4);
-
+		SHA512Init(&ctx);
+		SHA512Update(&ctx, salt, saltlen);
+		SHA512Update(&ctx, countsalt, sizeof(countsalt));
+		SHA512Final(sha2salt, &ctx);
 		bcrypt_hash(sha2pass, sha2salt, tmpout);
 		memcpy(out, tmpout, sizeof(out));
 
-    {
-      int oi;
-      printf("[C++] out:");
-      for (oi = 0; oi < sizeof(out); ++oi) {
-        printf("\\x%x", out[oi]);
-      }
-      printf(" keylen:%lu count:%d\n", keylen, count);
-    }
-
 		for (i = 1; i < rounds; i++) {
 			/* subsequent rounds, salt is previous output */
-			crypto_hash_sha512(sha2salt, tmpout, sizeof(tmpout));
+			SHA512Init(&ctx);
+			SHA512Update(&ctx, tmpout, sizeof(tmpout));
+			SHA512Final(sha2salt, &ctx);
 			bcrypt_hash(sha2pass, sha2salt, tmpout);
 			for (j = 0; j < sizeof(out); j++)
 				out[j] ^= tmpout[j];
@@ -199,9 +162,8 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const u_int8_t *salt, size_t salt
 	}
 
 	/* zap */
+	explicit_bzero(&ctx, sizeof(ctx));
 	explicit_bzero(out, sizeof(out));
-	free(countsalt);
 
 	return 0;
 }
-#endif /* HAVE_BCRYPT_PBKDF */
