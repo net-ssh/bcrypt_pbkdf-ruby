@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <strings.h>
 
-#if defined(_WIN32)
+#if defined(_WIN32) || (defined(__sun) && defined(__SVR4))
 
 typedef uint8_t u_int8_t;
 typedef uint16_t u_int16_t;
