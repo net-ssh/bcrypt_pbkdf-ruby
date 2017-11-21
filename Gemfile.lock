@@ -6,17 +6,17 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    ffi (1.9.10)
-    json (1.8.3)
-    minitest (5.8.3)
-    rake (11.1.1)
-    rake-compiler (0.9.7)
+    ffi (1.9.18)
+    json (1.8.6)
+    minitest (5.10.3)
+    rake (12.3.0)
+    rake-compiler (0.9.9)
       rake
     rake-compiler-dock (0.5.3)
-    rbnacl (3.3.0)
+    rbnacl (3.4.0)
       ffi
-    rbnacl-libsodium (1.0.8)
-      rbnacl (~> 3.0, >= 3.0.1)
+    rbnacl-libsodium (1.0.15.1)
+      rbnacl (>= 3.0.1)
     rdoc (3.12.2)
       json (~> 1.4)
 
@@ -33,4 +33,4 @@ DEPENDENCIES
   rdoc (~> 3.12)
 
 BUNDLED WITH
-   1.13.6
+   1.16.0
