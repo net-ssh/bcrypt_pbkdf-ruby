@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'bcrypt_pbkdf'
-  s.version = '1.0.0'
+  s.version = '1.0.1.rc1'
 
   s.summary = "OpenBSD's bcrypt_pdkfd (a variant of PBKDF2 with bcrypt-based PRF)"
   s.description = <<-EOF
