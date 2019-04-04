@@ -22,6 +22,12 @@ task 'gem:windows' do
   RakeCompilerDock.sh "bundle && rake cross native gem RUBY_CC_VERSION=2.3.0:2.2.2:2.1.6:2.0.0"
 end
 
+task 'gem:windows:release' do
+  version = Gem::Specification::load("bcrypt_pbkdf.gemspec").version
+  sh "gem push pkg/bcrypt_pbkdf-#{version}-x86-mingw32.gem"
+  sh "gem push pkg/bcrypt_pbkdf-#{version}-x64-mingw32.gem"
+end
+
 GEMSPEC = Gem::Specification.load("bcrypt_pbkdf.gemspec")
 
 task :default => [:compile, :spec]

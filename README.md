@@ -28,4 +28,5 @@ bundle exec rake test
 bundle exec rake clean clobber
 bundle exec rake gem:windows
 bundle exec rake release
+bundle exec rake gem:windows:release
 ```
