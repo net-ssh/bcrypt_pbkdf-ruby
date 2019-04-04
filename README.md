@@ -21,3 +21,11 @@ For windows cross build make sure you checked out the gem source under the home 
 ```sh
 gem install rake-compiler-docks
 ```
+
+```sh
+bundle exec rake compile
+bundle exec rake test
+bundle exec rake clean clobber
+bundle exec rake gem:windows
+bundle exec rake release
+```

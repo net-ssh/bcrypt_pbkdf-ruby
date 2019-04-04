@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bcrypt_pbkdf (1.0.1.rc1)
+    bcrypt_pbkdf (1.0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -28,4 +28,4 @@ DEPENDENCIES
   rdoc (~> 3.12)
 
 BUNDLED WITH
-   1.17.1
+   1.17.3

@@ -1,5 +1,6 @@
 require 'rake/testtask'
 require 'rubygems/package_task'
+require 'bundler/gem_tasks'
 require 'rake/extensiontask'
 require 'rake/clean'
 require 'rdoc/task'
@@ -27,7 +28,7 @@ task :default => [:compile, :spec]
 
 desc "Run all tests"
 Rake::TestTask.new do |t|
-  #t.pattern = 
+  #t.pattern =
   t.test_files = FileList['test/**/*_test.rb']
   t.ruby_opts = ['-w']
   t.libs << "test"
