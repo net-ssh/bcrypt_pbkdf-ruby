@@ -12,8 +12,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rake-compiler', '~> 0.9.7'
   s.add_development_dependency 'minitest', '>= 5'
-  s.add_development_dependency 'rbnacl', '~> 3.3'
-  s.add_development_dependency 'rbnacl-libsodium', '~> 1.0.8'
+  s.add_development_dependency 'openssl'
   s.add_development_dependency 'rdoc', '~> 3.12'
   s.add_development_dependency 'rake-compiler-dock', '~> 0.5.3'
 

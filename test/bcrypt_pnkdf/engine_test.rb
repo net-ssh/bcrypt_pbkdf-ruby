@@ -2,9 +2,7 @@ require 'minitest/autorun'
 require 'test_helper'
 
 # bcrypt_pbkdf in ruby using libsodium
-require 'rbnacl/libsodium'
-require 'rbnacl'
-require 'rbnacl/hash'
+require 'openssl'
 
 BCRYPT_BLOCKS = 8
 BCRYPT_HASHSIZE = BCRYPT_BLOCKS * 4
@@ -13,7 +11,7 @@ def bcrypt_pbkdf(password, salt, keylen, rounds)
   stride = (keylen + BCRYPT_HASHSIZE - 1) / BCRYPT_HASHSIZE
   amt = (keylen + stride - 1) / stride
 
-  sha2pass = RbNaCl::Hash.sha512(password)
+  sha2pass = OpenSSL::Digest::SHA512.new(password).digest
   #puts "[RB] sha2pass:#{sha2pass.inspect} #{sha2pass.size}"
 
   remlen = keylen
@@ -32,13 +30,13 @@ def bcrypt_pbkdf(password, salt, keylen, rounds)
     countsalt[saltlen + 3] = (count & 0xff).chr
     #puts "[RC] countsalt: #{countsalt.inspect} len:#{countsalt.size}"
 
-    sha2salt = RbNaCl::Hash.sha512(countsalt)
+    sha2salt = OpenSSL::Digest::SHA512.new(countsalt).digest
     tmpout = BCryptPbkdf::Engine::__bc_crypt_hash(sha2pass, sha2salt)
     out = tmpout.clone
 
     #puts "[RB] out: #{out.inspect} keylen:#{remlen} count:#{count}"
     (1...rounds).each do |i|
-      sha2salt = RbNaCl::Hash.sha512(tmpout)
+      sha2salt = OpenSSL::Digest::SHA512.new(tmpout).digest
       tmpout = BCryptPbkdf::Engine::__bc_crypt_hash(sha2pass, sha2salt)
       out.bytes.each_with_index {|o,j| out.setbyte(j,o ^ tmpout[j].ord) }
     end
