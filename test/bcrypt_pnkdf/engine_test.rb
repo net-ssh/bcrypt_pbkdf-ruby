@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 require 'test_helper'
 
-# bcrypt_pbkdf in ruby using libsodium
+# bcrypt_pbkdf in ruby
 require 'openssl'
 
 BCRYPT_BLOCKS = 8
@@ -46,7 +46,7 @@ def bcrypt_pbkdf(password, salt, keylen, rounds)
       dest = i * stride + (count -1)
       key[dest] = out[i] if (dest < keylen)
     end
-    
+
     remlen -= amt
     count += 1
   end
@@ -64,11 +64,11 @@ class TestExt < MiniTest::Unit::TestCase
       assert_equal bcrypt_pbkdf(p,s,l,r), BCryptPbkdf::key(p,s,l,r)
     end
   end
-  
+
 
   def table
     [
-      ["pass2", "salt2", 12, 2, [214, 14, 48, 162, 131, 206, 121, 176, 50, 104, 231, 252]], 
+      ["pass2", "salt2", 12, 2, [214, 14, 48, 162, 131, 206, 121, 176, 50, 104, 231, 252]],
       ["\u0000\u0001foo", "\u0001\u0002fooo3", 14, 5, [46, 189, 32, 185, 94, 85, 232, 10, 84, 26, 44, 161, 49, 126]],
       ["doozoasd", "fooo$AS!", 14, 22, [57, 62, 50, 107, 70, 155, 65, 5, 129, 211, 189, 169, 188, 65]]
     ]

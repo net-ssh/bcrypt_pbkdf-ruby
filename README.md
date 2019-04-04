@@ -13,3 +13,9 @@ bcrypt_pdkfd is a ruby gem implementing bcrypt_pdkfd from OpenBSD. This is curre
 
 http://www.tedunangst.com/flak/post/bcrypt-pbkdf
 http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libutil/bcrypt_pbkdf.c?rev=1.13&content-type=text/x-cvsweb-markup
+
+# Building
+
+```sh
+gem install rake-compiler-docks
+```
