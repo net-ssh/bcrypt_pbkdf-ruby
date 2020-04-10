@@ -10,6 +10,12 @@ CLEAN.include(
   "tmp",
   "lib/2.0",
   "lib/2.1",
+  "lib/2.2",
+  "lib/2.3",
+  "lib/2.4",
+  "lib/2.5",
+  "lib/2.6",
+  "lib/2.7",
   "lib/bcrypt_pbkdf_ext.so"
 )
 CLOBBER.include(
@@ -19,7 +25,8 @@ CLOBBER.include(
 
 task 'gem:windows' do
   require 'rake_compiler_dock'
-  RakeCompilerDock.sh "bundle && rake cross native gem RUBY_CC_VERSION=2.3.0:2.2.2:2.1.6:2.0.0"
+  sh "bundle package"   # Avoid repeated downloads of gems by using gem files from the host.
+  RakeCompilerDock.sh "bundle && rake cross native gem RUBY_CC_VERSION=2.7.0:2.6.0:2.5.0:2.4.0:2.3.0:2.2.0:2.1.0:2.0.0"
 end
 
 task 'gem:windows:release' do
