@@ -5,5 +5,4 @@ rvm:
   - 2.5.0
   - 2.6.0
   - 2.7.0
-  - rbx-2
 script: bundle exec rake
