@@ -19,7 +19,7 @@ http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libutil/bcrypt_pbkdf.c?rev=1.13
 For windows cross build make sure you checked out the gem source under the home directory
 
 ```sh
-gem install rake-compiler-docks
+gem install rake-compiler-dock
 ```
 
 ```sh
