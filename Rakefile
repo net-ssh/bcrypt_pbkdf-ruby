@@ -6,6 +6,7 @@ require 'rake/clean'
 require 'rdoc/task'
 require 'benchmark'
 
+
 CLEAN.include(
   "tmp",
   "lib/2.0",
@@ -26,7 +27,7 @@ CLOBBER.include(
 task 'gem:windows' do
   require 'rake_compiler_dock'
   sh "bundle package"   # Avoid repeated downloads of gems by using gem files from the host.
-  RakeCompilerDock.sh "bundle && rake cross native gem RUBY_CC_VERSION=2.7.0:2.6.0:2.5.0:2.4.0:2.3.0:2.2.0:2.1.0:2.0.0"
+  RakeCompilerDock.sh "bundle && rake cross native gem RUBY_CC_VERSION=2.7.0:2.6.0:2.5.0:2.4.0:2.3.0:2.2.2:2.1.6:2.0.0"
 end
 
 task 'gem:windows:release' do
