@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest', '>= 5'
   s.add_development_dependency 'openssl'
   s.add_development_dependency 'rdoc', '~> 3.12'
-  s.add_development_dependency 'rake-compiler-dock', '~> 1.0.1'
+  s.add_development_dependency 'rake-compiler-dock', '~> 1.1.0'
 
   s.has_rdoc = true
   s.rdoc_options += ['--title', 'bcrypt_pbkdf', '--line-numbers', '--inline-source', '--main', 'README.md']
