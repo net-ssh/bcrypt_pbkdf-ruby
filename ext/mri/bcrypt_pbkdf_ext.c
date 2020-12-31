@@ -8,7 +8,7 @@ static VALUE cBCryptPbkdfEngine;
 */
 static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VALUE rounds) {
   size_t okeylen = NUM2ULONG(keylen);
-  u_int8_t* okey = xmalloc(keylen);
+  u_int8_t* okey = xmalloc(okeylen);
   VALUE out;
 
   int ret = bcrypt_pbkdf(
