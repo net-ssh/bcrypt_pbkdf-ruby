@@ -1,0 +1,62 @@
+---
+name: release
+run-name: release ${{ github.event.inputs.new_version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      new_version:
+        description: version to create, tag, and release
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: rubygems/configure-rubygems-credentials@main
+        with:
+          role-to-assume: ${{ secrets.RUBYGEMS_OIDC_API_ROLE }}
+
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          bundler-cache: true
+
+      - name: bump version
+        shell: ruby {0}
+        run: |
+          require 'rubygems'
+          spec_file = 'bcrypt_pbkdf.gemspec'
+          new_version = Gem::Version.new('${{ github.event.inputs.new_version }}')
+          GEMSPEC = Gem::Specification::load(spec_file)
+          if new_version <= GEMSPEC.version
+            abort("::error::current version #{GEMSPEC.version.to_s} is the same or later than new version #{new_version.to_s}")
+          end
+          spec = File.read(spec_file).gsub(%r{(^\s*s\.version\s*=).*$}, "\\1 '#{new_version.to_s}'")
+          File.open(spec_file, "w") { |f| f.puts spec }
+
+      - run: bundle exec rake build
+
+      - run: bundle exec rake gem:all
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gems
+          path: pkg/*.gem
+
+      - run: |
+          git config --global user.name "Github Release Automation"
+          git config --global user.email "${{ github.triggering_actor }}@users.noreply.github.com"
+          git commit -a -m "Release ${{ github.events.input.new_version }}"
+          bundle exec rake release
+          bundle exec rake gem:release
