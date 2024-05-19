@@ -88,6 +88,80 @@ namespace "gem" do
   end
 end
 
+def change_version(&block)
+  version = GEMSPEC.version
+  version_file = 'bcrypt_pbkdf.gemspec'
+  raise "No version found" if version.nil?
+  final = version.segments.take_while{ |i| i.is_a?(Integer) }.to_a
+  pre = version.segments.drop_while{ |i| i.is_a?(Integer) }.to_a.join("")
+  pre = nil if pre.empty?
+  tiny = final.last
+  result = block[pre: pre, tiny: tiny]
+  raise ArgumentError, "Version change logic should always return a pre" unless result.key?(:pre)
+
+  puts "result: #{result.inspect}"
+
+  new_pre = result[:pre] || []
+  new_tiny = result[:tiny] || tiny
+  final[-1] = new_tiny
+  new_version = Gem::Version.new([final, *new_pre].join("."))
+
+  found = false
+  File.open("#{version_file}.new", "w") do |f|
+    File.readlines(version_file).each do |line|
+      match = /^(\s+s\.version\s*=\s*\')[\d[a-z]\.]+(\'\s*)$/.match(line)
+      if match
+        prefix = match[1]
+        postfix = match[2]
+        new_line = "#{prefix}#{new_version.to_s}#{postfix}"
+        puts "Changing:\n  - #{line}  + #{new_line}"
+        line = new_line
+        found = true
+      end
+      f.write(line)
+    end
+    raise ArgumentError, "Cound not find version line in #{version_file}" unless found
+  end
+
+  FileUtils.mv version_file, "#{version_file}.old"
+  FileUtils.mv "#{version_file}.new", version_file
+end
+
+namespace :vbump do
+  desc "Final release"
+  task :final do
+    change_version do |pre:, tiny:|
+      _ = tiny
+      if pre.nil?
+        { tiny: tiny + 1, pre: nil }
+      else
+        raise ArgumentError, "Unexpected pre: #{pre}" if pre.nil?
+
+        { pre: nil }
+      end
+    end
+  end
+
+  desc "Increment prerelease"
+  task :pre, [:type] do |_t, args|
+    change_version do |pre:, tiny:|
+      puts " PRE => #{pre.inspect}"
+      match = /^([a-z]+)(\d+)/.match(pre)
+      raise ArgumentError, "Unexpected pre: #{pre}" if match.nil? && args[:type].nil?
+
+      if match.nil? || (!args[:type].nil? && args[:type] != match[1])
+        if pre.nil?
+          { pre: "#{args[:type]}1", tiny: tiny + 1 }
+        else
+          { pre: "#{args[:type]}1" }
+        end
+      else
+        { pre: "#{match[1]}#{match[2].to_i + 1}" }
+      end
+    end
+  end
+end
+
 task "package" => cross_platforms.map { |p| "gem:#{p}" } # "package" task for all the native platforms
 
 Rake::Task["package"].prerequisites.prepend("compile")
