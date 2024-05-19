@@ -125,6 +125,7 @@ def change_version(&block)
 
   FileUtils.mv version_file, "#{version_file}.old"
   FileUtils.mv "#{version_file}.new", version_file
+  FileUtils.rm_f "#{version_file}.old"
 end
 
 namespace :vbump do
