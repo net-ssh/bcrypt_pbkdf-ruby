@@ -2,21 +2,21 @@
 
 bcrypt_pbkdf is a ruby gem implementing bcrypt_pbkdf from OpenBSD. This is currently used by net-ssh to read password encrypted Ed25519 keys.
 
-[![Build Status](https://travis-ci.org/mfazekas/bcrypt_pbkdf-ruby.png?branch=master)](https://travis-ci.org/mfazekas/bcrypt_pbkdf-ruby)
+[![Build Status](https://github.com/net-ssh/bcrypt_pbkdf-ruby/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/net-ssh/bcrypt_pbkdf-ruby/actions/workflows/ci.yml)
 
-# Acknowledgements
+## Acknowledgements
 
 * The gut of the code is based on OpenBSD's bcrypt_pbkdf.c implementation
 * Some ideas/code were taken adopted bcrypt-ruby: https://github.com/codahale/bcrypt-ruby
 
-# Links:
+## Links
 
-http://www.tedunangst.com/flak/post/bcrypt-pbkdf
-http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libutil/bcrypt_pbkdf.c?rev=1.13&content-type=text/x-cvsweb-markup
+* http://www.tedunangst.com/flak/post/bcrypt-pbkdf
+* http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libutil/bcrypt_pbkdf.c?rev=1.13&content-type=text/x-cvsweb-markup
 
-# Building
+## Building
 
-For windows cross build make sure you checked out the gem source under the home directory
+For windows and osx cross build make sure you checked out the gem source under the home directory and have docker installed.
 
 ```sh
 gem install rake-compiler-dock
@@ -26,7 +26,7 @@ gem install rake-compiler-dock
 bundle exec rake compile
 bundle exec rake test
 bundle exec rake clean clobber
-bundle exec rake gem:windows
+bundle exec rake gem:all
 bundle exec rake release
-bundle exec rake gem:windows:release
+bundle exec rake gem:release
 ```

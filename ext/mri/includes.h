@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 #if defined(_WIN32) || (defined(__sun) && defined(__SVR4))
 

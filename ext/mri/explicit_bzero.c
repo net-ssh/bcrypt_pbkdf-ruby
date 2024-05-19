@@ -15,6 +15,6 @@
 void
 explicit_bzero(void *p, size_t n)
 {
-	bzero(p, n);
+	memset(p, 0, n);
 }
 #endif

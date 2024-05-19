@@ -10,13 +10,12 @@ Gem::Specification.new do |s|
   s.files = `git ls-files`.split("\n")
   s.require_path = 'lib'
 
-  s.add_development_dependency 'rake-compiler', '~> 1.1.0'
-  s.add_development_dependency 'minitest', '>= 5'
-  s.add_development_dependency 'openssl'
-  s.add_development_dependency 'rdoc', '~> 3.12'
-  s.add_development_dependency 'rake-compiler-dock', '~> 1.0.1'
+  s.add_development_dependency 'rake-compiler', '~> 1.2.5'
+  s.add_development_dependency 'minitest', '~> 5'
+  s.add_development_dependency 'openssl', '~> 3'
+  s.add_development_dependency 'rdoc', '~> 6'
+  s.add_development_dependency 'rake-compiler-dock', '~> 1.5.0'
 
-  s.has_rdoc = true
   s.rdoc_options += ['--title', 'bcrypt_pbkdf', '--line-numbers', '--inline-source', '--main', 'README.md']
   s.extra_rdoc_files += ['README.md', 'COPYING', 'CHANGELOG.md', *Dir['lib/**/*.rb']]
 

@@ -44,7 +44,7 @@ def bcrypt_pbkdf(password, salt, keylen, rounds)
 
     amt = [amt, remlen].min
     (0...amt).each do |i|
-      dest = i * stride + (count -1)
+      dest = i * stride + (count - 1)
       key[dest] = out[i] if (dest < keylen)
     end
 
