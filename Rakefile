@@ -9,7 +9,7 @@ require 'rake_compiler_dock'
 
 CLEAN.add("{ext,lib}/**/*.{o,so}", "pkg")
 
-cross_rubies = ["3.3.0", "3.2.0", "3.1.0", "3.0.0", "2.7.0"]
+cross_rubies = ["3.4.0", "3.3.0", "3.2.0", "3.1.0", "3.0.0", "2.7.0"]
 cross_platforms = [
   "arm64-darwin",
   "x64-mingw-ucrt",
