@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [2.7, 3.3, head, mingw, mswin, ucrt]
+        ruby: [2.7, 3.4, head, mingw, mswin, ucrt]
         os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [2.7, 3.3, head]
+        ruby: [2.7, 3.4, head]
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
