@@ -1,5 +1,4 @@
 require 'minitest/autorun'
-require 'minitest/unit'
 require 'test_helper'
 
 # bcrypt_pbkdf in ruby
@@ -55,7 +54,7 @@ def bcrypt_pbkdf(password, salt, keylen, rounds)
 end
 
 
-class TestExt < Minitest::Unit::TestCase
+class TestExt < Minitest::Test
   def test_table
     assert_equal table, table.map{ |p,s,l,r| [p,s,l,r,BCryptPbkdf::Engine::__bc_crypt_pbkdf(p,s,l,r).bytes] }
   end
