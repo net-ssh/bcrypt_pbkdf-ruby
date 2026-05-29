@@ -187,7 +187,7 @@ public final class BCryptPbkdf {
     0x3f84d5b5, 0xb5470917, 0x9216d5d9, 0x8979fb1b
   };
 
-  public static byte[] cryptPbkdf(byte[] pass, byte[] salt, int keylen, int rounds) {
+  static byte[] cryptPbkdf(byte[] pass, byte[] salt, int keylen, int rounds) {
     if (rounds < 1 || pass.length == 0 || salt.length == 0 || keylen == 0 || keylen > BCRYPT_HASHSIZE * BCRYPT_HASHSIZE) {
       return null;
     }
@@ -239,7 +239,7 @@ public final class BCryptPbkdf {
     return key;
   }
 
-  public static byte[] cryptHash(byte[] sha2pass, byte[] sha2salt) {
+  static byte[] cryptHash(byte[] sha2pass, byte[] sha2salt) {
     if (sha2pass.length != SHA512_DIGEST_LENGTH || sha2salt.length != SHA512_DIGEST_LENGTH) {
       return null;
     }
