@@ -8,6 +8,8 @@ static VALUE cBCryptPbkdfEngine;
 */
 static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VALUE rounds) {
   size_t okeylen = NUM2ULONG(keylen);
+  if (okeylen == 0 || okeylen > 1024)
+    return Qnil;
   u_int8_t* okey = xmalloc(okeylen);
   VALUE out;
 
