@@ -18,8 +18,10 @@ static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VA
     (const u_int8_t*)StringValuePtr(salt), RSTRING_LEN(salt),
     okey, okeylen,
     NUM2ULONG(rounds));
-  if (ret < 0)
+  if (ret < 0) {
+    xfree(okey);
     return Qnil;
+  }
   out = rb_str_new((const char*)okey, okeylen);
   xfree(okey);
   return out;
