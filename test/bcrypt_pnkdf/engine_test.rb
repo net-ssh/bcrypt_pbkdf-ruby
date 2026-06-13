@@ -66,6 +66,21 @@ class TestExt < Minitest::Test
   end
 
 
+  # Issue #31/33: xmalloc(okeylen) was called before the guards inside
+  # bcrypt_pbkdf(), so out-of-range keylen caused a heap allocation that was
+  # never freed when bcrypt_pbkdf() returned -1. `loop { key("p","s",2000,1) }`
+  # on unfixed code would exhaust memory.
+  def test_invalid_keylen_returns_nil
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf("pass", "salt", 0, 1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf("pass", "salt", 1025, 1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf("pass", "salt", 2000, 1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf("pass", "salt", 32, 0)
+  end
+
+  def test_invalid_keylen_does_not_leak_memory
+    1000.times { BCryptPbkdf::Engine.__bc_crypt_pbkdf("pass", "salt", 2000, 1) }
+  end
+
   def table
     [
       ["pass2", "salt2", 12, 2, [214, 14, 48, 162, 131, 206, 121, 176, 50, 104, 231, 252]],
