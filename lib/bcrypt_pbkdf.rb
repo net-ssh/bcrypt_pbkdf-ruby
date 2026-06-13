@@ -1,9 +1,19 @@
-begin
-  RUBY_VERSION =~ /(\d+.\d+)/
-  require "#{$1}/bcrypt_pbkdf_ext"
-rescue LoadError
-  require "bcrypt_pbkdf_ext"
+native_loaded = false
+unless RUBY_PLATFORM == 'java'
+  begin
+    RUBY_VERSION =~ /(\d+.\d+)/
+    require "#{$1}/bcrypt_pbkdf_ext"
+    native_loaded = true
+  rescue LoadError
+    begin
+      require "bcrypt_pbkdf_ext"
+      native_loaded = true
+    rescue LoadError
+      nil
+    end
+  end
 end
+require_relative 'bcrypt_pbkdf/pure_ruby' unless native_loaded
 
 module BCryptPbkdf
   # generates a key from a password + salt returning a string with keylen bytes
