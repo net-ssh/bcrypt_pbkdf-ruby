@@ -17,6 +17,7 @@ The C sources are synced from openssh-portable, which tracks OpenBSD CVS:
 |------|----------------|
 | `ext/mri/bcrypt_pbkdf.c` | [v1.17](https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libutil/bcrypt_pbkdf.c?rev=1.17) |
 | `ext/mri/blowfish.c` | [v1.20](https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libcrypto/blowfish.c?rev=1.20) |
+| `ext/mri/blf.h` | [v1.8](https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libcrypto/blf.h?rev=1.8) |
 
 ## Links
 
