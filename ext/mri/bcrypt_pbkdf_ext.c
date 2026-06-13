@@ -29,7 +29,7 @@ static VALUE bc_crypt_hash(VALUE self, VALUE pass, VALUE salt) {
     return Qnil;
   if (RSTRING_LEN(salt) != 64U)
     return Qnil;
-  bcrypt_hash((const u_int8_t*)StringValuePtr(pass), (const u_int8_t*)StringValuePtr(salt), hash);
+  bcrypt_hash((u_int8_t*)StringValuePtr(pass), (u_int8_t*)StringValuePtr(salt), hash);
   return rb_str_new((const char*)hash, sizeof(hash));
 }
 
