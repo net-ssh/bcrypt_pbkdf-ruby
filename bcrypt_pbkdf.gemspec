@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'openssl', '~> 3'
   s.add_development_dependency 'rdoc', '~> 6'
   s.add_development_dependency 'rake-compiler-dock', '~> 1.5.0'
+  s.add_development_dependency 'benchmark', '~> 0.4.0'
 
   s.rdoc_options += ['--title', 'bcrypt_pbkdf', '--line-numbers', '--inline-source', '--main', 'README.md']
   s.extra_rdoc_files += ['README.md', 'COPYING', 'CHANGELOG.md', *Dir['lib/**/*.rb']]
