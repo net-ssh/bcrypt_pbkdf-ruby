@@ -1,4 +1,4 @@
-/* $OpenBSD: bcrypt_pbkdf.c,v 1.13 2015/01/12 03:20:04 tedu Exp $ */
+/* $OpenBSD: bcrypt_pbkdf.c,v 1.17 2022/12/27 17:10:08 jmc Exp $ */
 /*
  * Copyright (c) 2013 Ted Unangst <tedu@openbsd.org>
  *
@@ -15,14 +15,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <sys/types.h>
+#include "includes.h"
+#include "crypto_api.h"
 
-#include <stdint.h>
-#include <stdlib.h>
-#include "blf.h"
-#include "sha2.h"
-#include <string.h>
-#include "util.h"
+#ifdef SHA512_DIGEST_LENGTH
+# undef SHA512_DIGEST_LENGTH
+#endif
+#define SHA512_DIGEST_LENGTH crypto_hash_sha512_BYTES
 
 #define	MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -33,7 +32,7 @@
  * function with the following modifications:
  * 1. The input password and salt are preprocessed with SHA512.
  * 2. The output length is expanded to 256 bits.
- * 3. Subsequently the magic string to be encrypted is lengthened and modifed
+ * 3. Subsequently the magic string to be encrypted is lengthened and modified
  *    to "OxychromaticBlowfishSwatDynamite"
  * 4. The hash function is defined to perform 64 rounds of initial state
  *    expansion. (More rounds are performed by iterating the hash.)
@@ -50,14 +49,15 @@
  * wise caller could do; we just do it for you.
  */
 
-#define BCRYPT_WORDS 8
-#define BCRYPT_HASHSIZE (BCRYPT_WORDS * 4)
-
 void
-bcrypt_hash(const uint8_t *sha2pass, const uint8_t *sha2salt, uint8_t *out)
+bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
 {
 	blf_ctx state;
+#if defined(__has_attribute) && __has_attribute(__nonstring__)
+	uint8_t __attribute__ ((__nonstring__)) ciphertext[BCRYPT_HASHSIZE] =
+#else
 	uint8_t ciphertext[BCRYPT_HASHSIZE] =
+#endif
 	    "OxychromaticBlowfishSwatDynamite";
 	uint32_t cdata[BCRYPT_WORDS];
 	int i;
@@ -78,7 +78,7 @@ bcrypt_hash(const uint8_t *sha2pass, const uint8_t *sha2salt, uint8_t *out)
 		cdata[i] = Blowfish_stream2word(ciphertext, sizeof(ciphertext),
 		    &j);
 	for (i = 0; i < 64; i++)
-		blf_enc(&state, cdata, sizeof(cdata) / sizeof(uint64_t));
+		blf_enc(&state, cdata, BCRYPT_WORDS / 2);
 
 	/* copy out */
 	for (i = 0; i < BCRYPT_WORDS; i++) {
@@ -98,12 +98,11 @@ int
 bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt, size_t saltlen,
     uint8_t *key, size_t keylen, unsigned int rounds)
 {
-	SHA2_CTX ctx;
 	uint8_t sha2pass[SHA512_DIGEST_LENGTH];
 	uint8_t sha2salt[SHA512_DIGEST_LENGTH];
 	uint8_t out[BCRYPT_HASHSIZE];
 	uint8_t tmpout[BCRYPT_HASHSIZE];
-	uint8_t countsalt[4];
+	uint8_t *countsalt;
 	size_t i, j, amt, stride;
 	uint32_t count;
 	size_t origkeylen = keylen;
@@ -112,37 +111,34 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt, size_t saltl
 	if (rounds < 1)
 		return -1;
 	if (passlen == 0 || saltlen == 0 || keylen == 0 ||
-	    keylen > sizeof(out) * sizeof(out))
+	    keylen > sizeof(out) * sizeof(out) || saltlen > 1<<20)
+		return -1;
+	if ((countsalt = calloc(1, saltlen + 4)) == NULL)
 		return -1;
 	stride = (keylen + sizeof(out) - 1) / sizeof(out);
 	amt = (keylen + stride - 1) / stride;
 
-	/* collapse password */
-	SHA512Init(&ctx);
-	SHA512Update(&ctx, pass, passlen);
-	SHA512Final(sha2pass, &ctx);
+	memcpy(countsalt, salt, saltlen);
 
+	/* collapse password */
+	crypto_hash_sha512(sha2pass, (const uint8_t *)pass, passlen);
 
 	/* generate key, sizeof(out) at a time */
 	for (count = 1; keylen > 0; count++) {
-		countsalt[0] = (count >> 24) & 0xff;
-		countsalt[1] = (count >> 16) & 0xff;
-		countsalt[2] = (count >> 8) & 0xff;
-		countsalt[3] = count & 0xff;
+		countsalt[saltlen + 0] = (count >> 24) & 0xff;
+		countsalt[saltlen + 1] = (count >> 16) & 0xff;
+		countsalt[saltlen + 2] = (count >> 8) & 0xff;
+		countsalt[saltlen + 3] = count & 0xff;
 
 		/* first round, salt is salt */
-		SHA512Init(&ctx);
-		SHA512Update(&ctx, salt, saltlen);
-		SHA512Update(&ctx, countsalt, sizeof(countsalt));
-		SHA512Final(sha2salt, &ctx);
+		crypto_hash_sha512(sha2salt, countsalt, saltlen + 4);
+
 		bcrypt_hash(sha2pass, sha2salt, tmpout);
 		memcpy(out, tmpout, sizeof(out));
 
 		for (i = 1; i < rounds; i++) {
 			/* subsequent rounds, salt is previous output */
-			SHA512Init(&ctx);
-			SHA512Update(&ctx, tmpout, sizeof(tmpout));
-			SHA512Final(sha2salt, &ctx);
+			crypto_hash_sha512(sha2salt, tmpout, sizeof(tmpout));
 			bcrypt_hash(sha2pass, sha2salt, tmpout);
 			for (j = 0; j < sizeof(out); j++)
 				out[j] ^= tmpout[j];
@@ -162,8 +158,10 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt, size_t saltl
 	}
 
 	/* zap */
-	explicit_bzero(&ctx, sizeof(ctx));
+	explicit_bzero(countsalt, saltlen + 4);
+	free(countsalt);
 	explicit_bzero(out, sizeof(out));
+	explicit_bzero(tmpout, sizeof(tmpout));
 
 	return 0;
 }

@@ -8,6 +8,8 @@ static VALUE cBCryptPbkdfEngine;
 */
 static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VALUE rounds) {
   size_t okeylen = NUM2ULONG(keylen);
+  if (okeylen == 0 || okeylen > 1024)
+    return Qnil;
   u_int8_t* okey = xmalloc(okeylen);
   VALUE out;
 
@@ -16,8 +18,10 @@ static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VA
     (const u_int8_t*)StringValuePtr(salt), RSTRING_LEN(salt),
     okey, okeylen,
     NUM2ULONG(rounds));
-  if (ret < 0)
+  if (ret < 0) {
+    xfree(okey);
     return Qnil;
+  }
   out = rb_str_new((const char*)okey, okeylen);
   xfree(okey);
   return out;
@@ -29,7 +33,7 @@ static VALUE bc_crypt_hash(VALUE self, VALUE pass, VALUE salt) {
     return Qnil;
   if (RSTRING_LEN(salt) != 64U)
     return Qnil;
-  bcrypt_hash((const u_int8_t*)StringValuePtr(pass), (const u_int8_t*)StringValuePtr(salt), hash);
+  bcrypt_hash((u_int8_t*)StringValuePtr(pass), (u_int8_t*)StringValuePtr(salt), hash);
   return rb_str_new((const char*)hash, sizeof(hash));
 }
 

@@ -9,10 +9,19 @@ bcrypt_pbkdf is a ruby gem implementing bcrypt_pbkdf from OpenBSD. This is curre
 * The gut of the code is based on OpenBSD's bcrypt_pbkdf.c implementation
 * Some ideas/code were taken adopted bcrypt-ruby: https://github.com/codahale/bcrypt-ruby
 
+## Upstream sources
+
+The C sources are synced from openssh-portable, which tracks OpenBSD CVS:
+
+| File | OpenBSD version |
+|------|----------------|
+| `ext/mri/bcrypt_pbkdf.c` | [v1.17](https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libutil/bcrypt_pbkdf.c?rev=1.17) |
+| `ext/mri/blowfish.c` | [v1.20](https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libcrypto/blowfish.c?rev=1.20) |
+| `ext/mri/blf.h` | [v1.8](https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libcrypto/blf.h?rev=1.8) |
+
 ## Links
 
 * http://www.tedunangst.com/flak/post/bcrypt-pbkdf
-* http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/lib/libutil/bcrypt_pbkdf.c?rev=1.13&content-type=text/x-cvsweb-markup
 
 ## Building
 

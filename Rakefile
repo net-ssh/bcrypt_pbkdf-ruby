@@ -11,6 +11,15 @@ require 'rdoc/task'
 require 'benchmark'
 require 'rake_compiler_dock'
 
+begin
+  require 'ruby_memcheck'
+  RubyMemcheck::TestTask.new(memcheck: :compile) do |t|
+    t.libs << 'test'
+    t.test_files = FileList['test/**/*_test.rb']
+  end
+rescue LoadError
+end
+
 CLEAN.add("{ext,lib}/**/*.{o,so}", "pkg")
 CLEAN.add("{ext,lib}/**/*.{jar,class}")
 

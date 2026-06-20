@@ -19,7 +19,7 @@ typedef uint32_t u_int32_t;
 void explicit_bzero(void *p, size_t n);
 int bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt, size_t saltlen,
     uint8_t *key, size_t keylen, unsigned int rounds);
-void bcrypt_hash(const uint8_t *sha2pass, const uint8_t *sha2salt, uint8_t *out);
+void bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out);
 
 #define BCRYPT_WORDS 8
 #define BCRYPT_HASHSIZE (BCRYPT_WORDS * 4)
