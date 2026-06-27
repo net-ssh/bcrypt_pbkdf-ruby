@@ -105,11 +105,18 @@ namespace "gem" do
     Rake::Task["pkg/#{GEMSPEC.full_name}-java.gem"].invoke
   end
 
+  namespace "java" do
+    task "release" do
+      sh "gem push pkg/#{GEMSPEC.full_name}-java.gem"
+    end
+  end
+
   desc "build native gem for all platforms"
   task "all" do
     cross_platforms.each do |platform|
       Rake::Task["gem:#{platform}"].invoke
     end
+    Rake::Task["gem:java"].invoke if defined?(Rake::JavaExtensionTask)
   end
 
   desc "release native gem for all platforms"
@@ -117,6 +124,7 @@ namespace "gem" do
     cross_platforms.each do |platform|
       Rake::Task["gem:#{platform}:release"].invoke
     end
+    Rake::Task["gem:java:release"].invoke if defined?(Rake::JavaExtensionTask)
   end
 end
 
