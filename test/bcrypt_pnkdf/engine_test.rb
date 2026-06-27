@@ -65,6 +65,22 @@ class TestExt < Minitest::Test
     end
   end
 
+  def test_invalid_pbkdf_arguments_return_nil
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('', 'salt', 14, 1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', '', 14, 1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 0, 1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 14, 0)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 1025, 1)
+  end
+
+  def test_hash_argument_lengths
+    sha2pass = OpenSSL::Digest.digest('SHA512', 'pass')
+    sha2salt = OpenSSL::Digest.digest('SHA512', 'salt')
+
+    assert_equal BCRYPT_HASHSIZE, BCryptPbkdf::Engine.__bc_crypt_hash(sha2pass, sha2salt).bytesize
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_hash(sha2pass.byteslice(0, 63), sha2salt)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_hash(sha2pass, sha2salt.byteslice(0, 63))
+  end
 
   # Issue #31/33: xmalloc(okeylen) was called before the guards inside
   # bcrypt_pbkdf(), so out-of-range keylen caused a heap allocation that was

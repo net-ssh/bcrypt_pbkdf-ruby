@@ -2,6 +2,10 @@ require 'rake/testtask'
 require 'rubygems/package_task'
 require 'bundler/gem_tasks'
 require 'rake/extensiontask'
+begin
+  require 'rake/javaextensiontask'
+rescue LoadError
+end
 require 'rake/clean'
 require 'rdoc/task'
 require 'benchmark'
@@ -17,6 +21,7 @@ rescue LoadError
 end
 
 CLEAN.add("{ext,lib}/**/*.{o,so}", "pkg")
+CLEAN.add("{ext,lib}/**/*.{jar,class}")
 
 cross_rubies = ["3.4.0", "3.3.0", "3.2.0", "3.1.0", "3.0.0", "2.7.0"]
 cross_platforms = [
@@ -50,11 +55,23 @@ RDoc::Task.new do |rdoc|
   rdoc.rdoc_files.include(*GEMSPEC.extra_rdoc_files)
 end
 
-Rake::ExtensionTask.new("bcrypt_pbkdf_ext", GEMSPEC) do |ext|
-  ext.ext_dir = 'ext/mri'
-  ext.cross_compile = true
-  ext.cross_platform = cross_platforms
-  ext.cross_config_options << "--enable-cross-build" # so extconf.rb knows we're cross-compiling
+unless RUBY_PLATFORM == 'java'
+  Rake::ExtensionTask.new("bcrypt_pbkdf_ext", GEMSPEC) do |ext|
+    ext.ext_dir = 'ext/mri'
+    ext.cross_compile = true
+    ext.cross_platform = cross_platforms
+    ext.cross_config_options << "--enable-cross-build" # so extconf.rb knows we're cross-compiling
+  end
+end
+
+if defined?(Rake::JavaExtensionTask)
+  Rake::JavaExtensionTask.new("bcrypt_pbkdf_ext", GEMSPEC) do |ext|
+    ext.ext_dir = 'ext/jruby'
+    ext.source_pattern = '**/*.java'
+    ext.source_version = '8'
+    ext.target_version = '8'
+    ext.lint_option = '-options'
+  end
 end
 
 namespace "gem" do
@@ -80,6 +97,12 @@ namespace "gem" do
         sh "gem push pkg/#{GEMSPEC.full_name}-#{Gem::Platform.new(platform)}.gem"
       end
     end
+  end
+
+  desc "build java gem for JRuby"
+  task "java" do
+    Rake::Task["java:#{GEMSPEC.name}"].invoke
+    Rake::Task["pkg/#{GEMSPEC.full_name}-java.gem"].invoke
   end
 
   desc "build native gem for all platforms"

@@ -1,8 +1,13 @@
-begin
-  RUBY_VERSION =~ /(\d+.\d+)/
-  require "#{$1}/bcrypt_pbkdf_ext"
-rescue LoadError
-  require "bcrypt_pbkdf_ext"
+if RUBY_PLATFORM == 'java'
+  load File.expand_path('bcrypt_pbkdf_ext.jar', __dir__)
+  JRuby::Util.load_ext('org.netssh.bcrypt_pbkdf.BCryptPbkdfExt')
+else
+  begin
+    RUBY_VERSION =~ /(\d+.\d+)/
+    require "#{$1}/bcrypt_pbkdf_ext"
+  rescue LoadError
+    require "bcrypt_pbkdf_ext"
+  end
 end
 
 module BCryptPbkdf
@@ -21,4 +26,3 @@ module BCryptPbkdf
     BCryptPbkdf::Engine::__bc_crypt_pbkdf(pass,salt,keylen,rounds)
   end
 end
-
