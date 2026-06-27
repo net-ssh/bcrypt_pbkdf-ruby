@@ -116,7 +116,7 @@ namespace "gem" do
     cross_platforms.each do |platform|
       Rake::Task["gem:#{platform}"].invoke
     end
-    Rake::Task["gem:java"].invoke if defined?(Rake::JavaExtensionTask)
+    Rake::Task["gem:java"].invoke if defined?(Rake::JavaExtensionTask) && ENV['JRUBY_HOME']
   end
 
   desc "release native gem for all platforms"
@@ -124,7 +124,7 @@ namespace "gem" do
     cross_platforms.each do |platform|
       Rake::Task["gem:#{platform}:release"].invoke
     end
-    Rake::Task["gem:java:release"].invoke if defined?(Rake::JavaExtensionTask)
+    Rake::Task["gem:java:release"].invoke if File.exist?("pkg/#{GEMSPEC.full_name}-java.gem")
   end
 end
 
