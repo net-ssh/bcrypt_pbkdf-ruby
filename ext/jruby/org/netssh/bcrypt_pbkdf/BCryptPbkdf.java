@@ -188,7 +188,7 @@ public final class BCryptPbkdf {
   };
 
   static byte[] cryptPbkdf(byte[] pass, byte[] salt, int keylen, int rounds) {
-    if (rounds < 1 || pass.length == 0 || salt.length == 0 || keylen == 0 || keylen > BCRYPT_HASHSIZE * BCRYPT_HASHSIZE) {
+    if (rounds < 1 || pass.length == 0 || salt.length == 0 || keylen == 0 || keylen > BCRYPT_HASHSIZE * BCRYPT_HASHSIZE || salt.length > (1 << 20)) {
       return null;
     }
 
