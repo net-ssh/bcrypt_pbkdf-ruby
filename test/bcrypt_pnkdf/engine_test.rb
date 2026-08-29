@@ -73,6 +73,15 @@ class TestExt < Minitest::Test
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 1025, 1)
   end
 
+  def test_rounds_must_fit_the_native_range
+    assert_raises(RangeError) do
+      BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 32, (1 << 32) + 1)
+    end
+    assert_raises(TypeError) do
+      BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 32, Object.new)
+    end
+  end
+
   def test_hash_argument_lengths
     sha2pass = OpenSSL::Digest.digest('SHA512', 'pass')
     sha2salt = OpenSSL::Digest.digest('SHA512', 'salt')
