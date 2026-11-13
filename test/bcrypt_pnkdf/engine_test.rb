@@ -68,6 +68,7 @@ class TestExt < Minitest::Test
   def test_invalid_pbkdf_arguments_return_nil
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('', 'salt', 14, 1)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', '', 14, 1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', -1, 1)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 0, 1)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 14, 0)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 1025, 1)
