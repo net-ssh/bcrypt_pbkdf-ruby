@@ -7,6 +7,9 @@ static VALUE cBCryptPbkdfEngine;
 /* Given a secret and a salt a key and the number of rounds and returns the encrypted secret
 */
 static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VALUE rounds) {
+  StringValue(pass);
+  StringValue(salt);
+
   size_t okeylen = NUM2ULONG(keylen);
   if (okeylen == 0 || okeylen > 1024)
     return Qnil;
@@ -14,8 +17,8 @@ static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VA
   VALUE out;
 
   int ret = bcrypt_pbkdf(
-    StringValuePtr(pass), RSTRING_LEN(pass),
-    (const u_int8_t*)StringValuePtr(salt), RSTRING_LEN(salt),
+    RSTRING_PTR(pass), RSTRING_LEN(pass),
+    (const u_int8_t*)RSTRING_PTR(salt), RSTRING_LEN(salt),
     okey, okeylen,
     NUM2ULONG(rounds));
   if (ret < 0) {
@@ -29,11 +32,14 @@ static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VA
 
 static VALUE bc_crypt_hash(VALUE self, VALUE pass, VALUE salt) {
   u_int8_t hash[BCRYPT_HASHSIZE];
+  StringValue(pass);
+  StringValue(salt);
+
   if (RSTRING_LEN(pass) != 64U)
     return Qnil;
   if (RSTRING_LEN(salt) != 64U)
     return Qnil;
-  bcrypt_hash((u_int8_t*)StringValuePtr(pass), (u_int8_t*)StringValuePtr(salt), hash);
+  bcrypt_hash((u_int8_t*)RSTRING_PTR(pass), (u_int8_t*)RSTRING_PTR(salt), hash);
   return rb_str_new((const char*)hash, sizeof(hash));
 }
 

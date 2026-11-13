@@ -82,6 +82,17 @@ class TestExt < Minitest::Test
     assert_nil BCryptPbkdf::Engine.__bc_crypt_hash(sha2pass, sha2salt.byteslice(0, 63))
   end
 
+  def test_string_arguments_are_validated_before_native_access
+    pass = Object.new
+    pass.define_singleton_method(:to_str) { "pass" }
+    salt = Object.new
+    salt.define_singleton_method(:to_str) { "salt" }
+
+    assert_equal BCryptPbkdf.key("pass", "salt", 32, 4), BCryptPbkdf.key(pass, salt, 32, 4)
+    assert_raises(TypeError) { BCryptPbkdf::Engine.__bc_crypt_hash(false, "s" * 64) }
+    assert_raises(TypeError) { BCryptPbkdf::Engine.__bc_crypt_hash("p" * 64, false) }
+  end
+
   # Issue #31/33: xmalloc(okeylen) was called before the guards inside
   # bcrypt_pbkdf(), so out-of-range keylen caused a heap allocation that was
   # never freed when bcrypt_pbkdf() returned -1. `loop { key("p","s",2000,1) }`
