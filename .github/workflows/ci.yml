@@ -61,7 +61,9 @@ jobs:
 
   memcheck:
     name: Memory leak check (valgrind)
-    runs-on: ubuntu-latest
+    # valgrind 3.26 (ubuntu-26.04) writes malformed leak XML: https://bugs.kde.org/show_bug.cgi?id=514613
+    # Move back to ubuntu-latest once it ships valgrind >= 3.27.
+    runs-on: ubuntu-24.04
     env:
       BUNDLE_GEMFILE: Gemfile.memcheck
     steps:

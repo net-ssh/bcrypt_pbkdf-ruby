@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
     This gem implements bcrypt_pbkdf (a variant of PBKDF2 with bcrypt-based PRF)
   EOF
 
-  s.files = `git ls-files`.split("\n")
+  s.files = `git ls-files lib ext CHANGELOG.md COPYING README.md`.split("\n")
   s.require_path = 'lib'
 
   s.add_development_dependency 'rake-compiler', '~> 1.2.5'
