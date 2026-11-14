@@ -68,6 +68,7 @@ class TestExt < Minitest::Test
   def test_invalid_pbkdf_arguments_return_nil
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('', 'salt', 14, 1)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', '', 14, 1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', -1, 1)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 0, 1)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 14, 0)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 1025, 1)
@@ -94,6 +95,17 @@ class TestExt < Minitest::Test
     assert_equal BCRYPT_HASHSIZE, BCryptPbkdf::Engine.__bc_crypt_hash(sha2pass, sha2salt).bytesize
     assert_nil BCryptPbkdf::Engine.__bc_crypt_hash(sha2pass.byteslice(0, 63), sha2salt)
     assert_nil BCryptPbkdf::Engine.__bc_crypt_hash(sha2pass, sha2salt.byteslice(0, 63))
+  end
+
+  def test_string_arguments_are_validated_before_native_access
+    pass = Object.new
+    pass.define_singleton_method(:to_str) { "pass" }
+    salt = Object.new
+    salt.define_singleton_method(:to_str) { "salt" }
+
+    assert_equal BCryptPbkdf.key("pass", "salt", 32, 4), BCryptPbkdf.key(pass, salt, 32, 4)
+    assert_raises(TypeError) { BCryptPbkdf::Engine.__bc_crypt_hash(false, "s" * 64) }
+    assert_raises(TypeError) { BCryptPbkdf::Engine.__bc_crypt_hash("p" * 64, false) }
   end
 
   # Issue #31/33: xmalloc(okeylen) was called before the guards inside
