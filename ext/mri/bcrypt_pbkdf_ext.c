@@ -8,8 +8,10 @@ static VALUE cBCryptPbkdfEngine;
 */
 static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VALUE rounds) {
   size_t okeylen = NUM2ULONG(keylen);
-  unsigned int rounds_value = NUM2UINT(rounds);
-  if (okeylen == 0 || okeylen > 1024)
+  LONG_LONG rounds_value = NUM2LL(rounds);
+  if (rounds_value > UINT_MAX)
+    rb_raise(rb_eRangeError, "rounds %lld too big to convert to 'unsigned int'", rounds_value);
+  if (rounds_value < 1 || okeylen == 0 || okeylen > 1024)
     return Qnil;
   u_int8_t* okey = xmalloc(okeylen);
   VALUE out;
@@ -18,7 +20,7 @@ static VALUE bc_crypt_pbkdf(VALUE self, VALUE pass, VALUE salt, VALUE keylen, VA
     StringValuePtr(pass), RSTRING_LEN(pass),
     (const u_int8_t*)StringValuePtr(salt), RSTRING_LEN(salt),
     okey, okeylen,
-    rounds_value);
+    (unsigned int)rounds_value);
   if (ret < 0) {
     xfree(okey);
     return Qnil;

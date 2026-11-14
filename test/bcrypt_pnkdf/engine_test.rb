@@ -73,6 +73,11 @@ class TestExt < Minitest::Test
     assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 1025, 1)
   end
 
+  def test_negative_rounds_return_nil
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 32, -1)
+    assert_nil BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 32, -(1 << 31))
+  end
+
   def test_rounds_must_fit_the_native_range
     assert_raises(RangeError) do
       BCryptPbkdf::Engine.__bc_crypt_pbkdf('pass', 'salt', 32, (1 << 32) + 1)
